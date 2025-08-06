@@ -1,18 +1,17 @@
+import EditUserClient from "@/components/users/EditUserClient"
 import { User } from "@/lib/types"
 import Link from "next/link"
 import { Button } from "@/components/ui/button"
 
 async function getUser(id: string): Promise<User> {
   const res = await fetch(`https://jsonplaceholder.typicode.com/users/${id}`)
-
-  if (!res.ok) {
-    throw new Error("Failed to fetch user")
-  }
-
+  if (!res.ok) throw new Error("Failed to fetch user")
   return res.json()
 }
 
-export default async function UserPage({ params }: { params: { id: string } }) {
+type Props = { params: { id: string } }
+
+export default async function UserPage({ params }: Props) {
   const user = await getUser(params.id)
 
   return (
@@ -33,14 +32,14 @@ export default async function UserPage({ params }: { params: { id: string } }) {
       <div>
         <h2 className="font-semibold mt-4">Company</h2>
         <p>{user.company.name}</p>
-        <p className="text-sm text-gray-500">{user.company.catchPhrase}</p>
       </div>
 
       <div className="flex gap-4 pt-4">
         <Link href="/">
           <Button variant="outline">Назад</Button>
         </Link>
-        <Button disabled>Редактировать</Button>
+        {/* Клиентский компонент редактирования — без передачи функций из сервера */}
+        <EditUserClient user={user} />
       </div>
     </main>
   )
