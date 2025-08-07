@@ -1,37 +1,54 @@
 "use client"
 
-import { useEffect, useState } from "react"
-import { User } from "@/lib/types"
-import { UserCard } from "@/components/users/UserCard"
-import { AddUserDialog } from "@/components/users/AddUserDialog"
+import { useParams, useRouter } from "next/navigation"
+import { useUsers } from "@/hooks/useUsers"
+import EditUserClient from "@/components/users/EditUserClient"
+import Link from "next/link"
+import { Button } from "@/components/ui/button"
 
-export default function HomePage() {
-  const [users, setUsers] = useState<User[]>([])
+export default function UserPage() {
+  const { id } = useParams()
+  const router = useRouter()
+  const { users, editUser } = useUsers()
 
-  useEffect(() => {
-    fetch("https://jsonplaceholder.typicode.com/users")
-      .then((res) => res.json())
-      .then(setUsers)
-  }, [])
+  const user = users.find((u) => u.id === Number(id))
 
-  const handleDelete = (id: number) => {
-    setUsers((prev) => prev.filter((user) => user.id !== id))
+  if (!user) {
+    return (
+      <main className="max-w-xl mx-auto p-6 space-y-4">
+        <h1 className="text-2xl font-bold text-red-600">Пользователь не найден</h1>
+        <Link href="/">
+          <Button variant="outline">Назад</Button>
+        </Link>
+      </main>
+    )
   }
-
-  const handleAdd = (newUser: User) => {
-    setUsers((prev) => [...prev, newUser])
-  }
-
-  const nextId = users.length > 0 ? Math.max(...users.map((u) => u.id)) + 1 : 1
 
   return (
-    <main className="p-4 max-w-7xl mx-auto">
-      <AddUserDialog onAdd={handleAdd} nextId={nextId} />
+    <main className="max-w-xl mx-auto p-6 space-y-4">
+      <h1 className="text-2xl font-bold">{user.name}</h1>
+      <p className="text-gray-600">Username: {user.username}</p>
+      <p>Email: {user.email}</p>
+      <p>Phone: {user.phone}</p>
+      <p>Website: {user.website}</p>
 
-      <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-4">
-        {users.map((user) => (
-          <UserCard key={user.id} user={user} onDelete={handleDelete} />
-        ))}
+      <div>
+        <h2 className="font-semibold mt-4">Address</h2>
+        <p>
+          {user.address.street}, {user.address.city}, {user.address.zipcode}
+        </p>
+      </div>
+
+      <div>
+        <h2 className="font-semibold mt-4">Company</h2>
+        <p>{user.company.name}</p>
+      </div>
+
+      <div className="flex gap-4 pt-4">
+        <Link href="/">
+          <Button variant="outline">Назад</Button>
+        </Link>
+        <EditUserClient user={user} onSave={editUser} />
       </div>
     </main>
   )

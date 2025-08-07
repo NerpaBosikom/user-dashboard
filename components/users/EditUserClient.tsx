@@ -8,9 +8,10 @@ import { useState } from "react"
 
 interface Props {
   user: User
+  onSave: (user: User) => void
 }
 
-export default function EditUserClient({ user }: Props) {
+export default function EditUserClient({ user, onSave }: Props) {
   const [open, setOpen] = useState(false)
   const [formData, setFormData] = useState<User>(user)
 
@@ -30,8 +31,7 @@ export default function EditUserClient({ user }: Props) {
   }
 
   const handleSave = () => {
-    // Локальное сохранение: пока просто выводим в консоль
-    console.log("Saving user:", formData)
+    onSave(formData)
     setOpen(false)
   }
 
