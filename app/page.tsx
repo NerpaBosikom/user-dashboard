@@ -11,25 +11,23 @@ import { UserCardSkeleton } from "@/components/users/UserCardSkeleton"
 
 export default function HomePage() {
   const { users, addUser, deleteUser, nextId } = useUsers()
-
   const searchParams = useSearchParams()
   const router = useRouter()
 
-  const initialSearchTerm = searchParams.get("search") ?? ""
-  const initialCompanyFilter = searchParams.get("company") ?? ""
+  // Состояние фильтров
+  const [searchTerm, setSearchTerm] = useState("")
+  const [companyFilter, setCompanyFilter] = useState("")
 
-  const [searchTerm, setSearchTerm] = useState(initialSearchTerm)
-  const [companyFilter, setCompanyFilter] = useState(initialCompanyFilter)
-
+  // Синхронизация состояния фильтров с URL-параметрами (только если отличаются)
   useEffect(() => {
     const urlSearch = searchParams.get("search") ?? ""
     const urlCompany = searchParams.get("company") ?? ""
 
     if (urlSearch !== searchTerm) setSearchTerm(urlSearch)
     if (urlCompany !== companyFilter) setCompanyFilter(urlCompany)
-    // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [searchParams])
 
+  // Обновляем URL при изменении фильтров
   useEffect(() => {
     const params = new URLSearchParams()
     if (searchTerm) params.set("search", searchTerm)

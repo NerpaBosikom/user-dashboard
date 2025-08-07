@@ -1,6 +1,6 @@
 "use client"
 
-import { useParams, useRouter } from "next/navigation"
+import { useParams, useSearchParams } from "next/navigation"
 import { motion, AnimatePresence } from "framer-motion"
 import { useUsers } from "@/hooks/useUsers"
 import EditUserClient from "@/components/users/EditUserClient"
@@ -10,10 +10,20 @@ import { UserDetailsSkeleton } from "@/components/users/UserDetailsSkeleton"
 
 export default function UserPage() {
   const { id } = useParams()
-  const router = useRouter()
+  const searchParams = useSearchParams()
   const { users, editUser } = useUsers()
 
   const user = users.find((u) => u.id === Number(id))
+
+  // Получаем параметры фильтров из URL
+  const search = searchParams.get("search") ?? ""
+  const company = searchParams.get("company") ?? ""
+
+  // Формируем query строку с фильтрами для возврата на главную
+  const queryString = new URLSearchParams()
+  if (search) queryString.set("search", search)
+  if (company) queryString.set("company", company)
+  const backHref = queryString.toString() ? `/?${queryString.toString()}` : "/"
 
   const variants = {
     hidden: { opacity: 0, y: 10 },
@@ -69,7 +79,7 @@ export default function UserPage() {
         </div>
 
         <div className="flex gap-4 pt-4">
-          <Link href="/">
+          <Link href={backHref}>
             <Button variant="outline">Назад</Button>
           </Link>
           <EditUserClient user={user} onSave={editUser} />
