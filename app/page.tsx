@@ -22,6 +22,15 @@ export default function HomePage() {
   const [companyFilter, setCompanyFilter] = useState(initialCompanyFilter)
 
   useEffect(() => {
+    const urlSearch = searchParams.get("search") ?? ""
+    const urlCompany = searchParams.get("company") ?? ""
+
+    if (urlSearch !== searchTerm) setSearchTerm(urlSearch)
+    if (urlCompany !== companyFilter) setCompanyFilter(urlCompany)
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [searchParams])
+
+  useEffect(() => {
     const params = new URLSearchParams()
     if (searchTerm) params.set("search", searchTerm)
     if (companyFilter) params.set("company", companyFilter)
