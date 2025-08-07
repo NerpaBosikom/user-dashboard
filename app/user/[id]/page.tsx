@@ -5,6 +5,7 @@ import { useUsers } from "@/hooks/useUsers"
 import EditUserClient from "@/components/users/EditUserClient"
 import Link from "next/link"
 import { Button } from "@/components/ui/button"
+import { UserDetailsSkeleton } from "@/components/users/UserDetailsSkeleton"
 
 export default function UserPage() {
   const { id } = useParams()
@@ -14,14 +15,7 @@ export default function UserPage() {
   const user = users.find((u) => u.id === Number(id))
 
   if (!user) {
-    return (
-      <main className="max-w-xl mx-auto p-6 space-y-4">
-        <h1 className="text-2xl font-bold text-red-600">Пользователь не найден</h1>
-        <Link href="/">
-          <Button variant="outline">Назад</Button>
-        </Link>
-      </main>
-    )
+    return <UserDetailsSkeleton />
   }
 
   return (
