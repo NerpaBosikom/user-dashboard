@@ -1,6 +1,6 @@
 "use client"
 
-import { useState, useMemo, useEffect } from "react"
+import { useState, useMemo, useEffect, useRef } from "react"
 import { useRouter, useSearchParams } from "next/navigation"
 import { motion, AnimatePresence } from "framer-motion"
 import { useUsers } from "@/hooks/useUsers"
@@ -14,26 +14,22 @@ export default function HomePage() {
   const searchParams = useSearchParams()
   const router = useRouter()
 
-  // Состояние фильтров
-  const [searchTerm, setSearchTerm] = useState("")
-  const [companyFilter, setCompanyFilter] = useState("")
+  const [searchTerm, setSearchTerm] = useState(() => searchParams.get("search") ?? "")
+  const [companyFilter, setCompanyFilter] = useState(() => searchParams.get("company") ?? "")
 
-  // Синхронизация состояния фильтров с URL-параметрами (только если отличаются)
+  const isFirstRender = useRef(true)
+
   useEffect(() => {
-    const urlSearch = searchParams.get("search") ?? ""
-    const urlCompany = searchParams.get("company") ?? ""
-
-    if (urlSearch !== searchTerm) setSearchTerm(urlSearch)
-    if (urlCompany !== companyFilter) setCompanyFilter(urlCompany)
-  }, [searchParams])
-
-  // Обновляем URL при изменении фильтров
-  useEffect(() => {
+    if (isFirstRender.current) {
+      isFirstRender.current = false
+      return
+    }
     const params = new URLSearchParams()
     if (searchTerm) params.set("search", searchTerm)
     if (companyFilter) params.set("company", companyFilter)
     const queryString = params.toString()
-    router.replace(queryString ? `/?${queryString}` : "/", { scroll: false })
+
+    router.push(queryString ? `/?${queryString}` : "/", { scroll: false })
   }, [searchTerm, companyFilter, router])
 
   const companies = useMemo(() => {

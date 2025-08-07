@@ -1,6 +1,6 @@
 "use client"
 
-import { useRouter } from "next/navigation"
+import { useRouter, useSearchParams } from "next/navigation"
 import { Card, CardContent } from "@/components/ui/card"
 import { Button } from "@/components/ui/button"
 import { User } from "@/lib/types"
@@ -12,6 +12,13 @@ interface Props {
 
 export function UserCard({ user, onDelete }: Props) {
   const router = useRouter()
+  const searchParams = useSearchParams()
+
+  const handleDetails = () => {
+    const params = searchParams.toString()
+    const path = `/user/${user.id}${params ? `?${params}` : ""}`
+    router.push(path)
+  }
 
   return (
     <Card>
@@ -20,7 +27,7 @@ export function UserCard({ user, onDelete }: Props) {
         <p className="text-sm text-gray-500">{user.email}</p>
         <p className="text-sm">{user.company.name}</p>
         <div className="flex justify-between pt-2">
-          <Button variant="outline" onClick={() => router.push(`/user/${user.id}`)}>
+          <Button variant="outline" onClick={handleDetails}>
             Подробнее
           </Button>
           <Button variant="destructive" onClick={() => onDelete(user.id)}>
