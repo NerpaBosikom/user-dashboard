@@ -1,14 +1,27 @@
 "use client"
 
-import { Alert, AlertDescription, AlertTitle } from "@/components/ui/alert"
-import { AlertTriangle } from "lucide-react"
+import { Alert } from "@/components/ui/alert"
 
-export function ErrorCard({ error }: { error: Error }) {
+interface ErrorCardProps {
+  error: Error
+  onRetry?: () => void
+}
+
+export function ErrorCard({ error, onRetry }: ErrorCardProps) {
   return (
     <Alert variant="destructive">
-      <AlertTriangle className="h-4 w-4" />
-      <AlertTitle>Произошла ошибка</AlertTitle>
-      <AlertDescription>{error.message}</AlertDescription>
+      <div className="flex flex-col space-y-2">
+        <h3 className="font-bold">Error loading users</h3>
+        <p>{error.message}</p>
+        {onRetry && (
+          <button 
+            onClick={onRetry}
+            className="text-sm underline text-primary"
+          >
+            Try again
+          </button>
+        )}
+      </div>
     </Alert>
   )
 }

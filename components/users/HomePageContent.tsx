@@ -1,94 +1,98 @@
 "use client"
 
-import { useState, useMemo, useEffect, useRef } from "react"
-import { useRouter, useSearchParams } from "next/navigation"
-import { motion, AnimatePresence } from "framer-motion"
+import { useSearchParams, useRouter } from "next/navigation"
+import { useState, useMemo, useEffect } from "react"
+import { motion } from "framer-motion"
 import { useUsers } from "@/hooks/useUsers"
-import { UserCard } from "@/components/users/UserCard"
-import { AddUserDialog } from "@/components/users/AddUserDialog"
+import { ErrorCard } from "@/components/users/ErrorCard"
+import { ErrorBoundary } from "@/components/users/ErrorBoundary"
 import { UserFilters } from "@/components/users/UserFilters"
-import { UserCardSkeleton } from "@/components/users/UserCardSkeleton"
+import { UsersList } from "@/components/users/UsersList"
+import { User } from "@/lib/types"
 
 export function HomePageContent() {
-  const { users, addUser, deleteUser, nextId } = useUsers()
-  const searchParams = useSearchParams()
   const router = useRouter()
+  const searchParams = useSearchParams()
+  const { users, addUser, deleteUser, loading, error, deletingId, fetchUsers } = useUsers()
 
-  const [searchTerm, setSearchTerm] = useState("")
-  const [companyFilter, setCompanyFilter] = useState("")
-  const isFirstRender = useRef(true)
+  const [search, setSearch] = useState(searchParams.get("search") ?? "")
+  const [companyFilter, setCompanyFilter] = useState(searchParams.get("company") ?? "")
 
-  // Ставим search и company из searchParams через эффект, чтобы избежать ошибок
-  useEffect(() => {
-    const search = searchParams.get("search") ?? ""
-    const company = searchParams.get("company") ?? ""
-
-    setSearchTerm(search)
-    setCompanyFilter(company)
-  }, [searchParams])
-
-  useEffect(() => {
-    if (isFirstRender.current) {
-      isFirstRender.current = false
-      return
-    }
-
-    const params = new URLSearchParams()
-    if (searchTerm) params.set("search", searchTerm)
-    if (companyFilter) params.set("company", companyFilter)
-    const queryString = params.toString()
-
-    router.push(queryString ? `/?${queryString}` : "/", { scroll: false })
-  }, [searchTerm, companyFilter, router])
-
+  // Список компаний для фильтра
   const companies = useMemo(() => {
-    const unique = Array.from(new Set(users.map((u) => u.company.name)))
-    return unique.sort()
+    const uniqueCompanies = new Set<string>()
+    users.forEach((user: User) => {
+      if (user.company?.name) {
+        uniqueCompanies.add(user.company.name)
+      }
+    })
+    return Array.from(uniqueCompanies).sort()
   }, [users])
 
-  const filteredUsers = users.filter((user) => {
-    const matchesName = user.name.toLowerCase().includes(searchTerm.toLowerCase())
-    const matchesCompany = companyFilter ? user.company.name === companyFilter : true
-    return matchesName && matchesCompany
-  })
+  const filteredUsers = useMemo(() => {
+    const searchLower = search.toLowerCase()
+    const companyLower = companyFilter.toLowerCase()
+    
+    return users.filter((user: User) => {
+      const matchesSearch = search === "" ||
+        user.name.toLowerCase().includes(searchLower) ||
+        user.username.toLowerCase().includes(searchLower)
+      
+      const matchesCompany = companyFilter === "" ||
+        (user.company?.name ?? "").toLowerCase().includes(companyLower)
+      
+      return matchesSearch && matchesCompany
+    })
+  }, [users, search, companyFilter])
 
-  const isLoading = users.length === 0
-
-  const variants = {
-    hidden: { opacity: 0, y: 10 },
-    visible: { opacity: 1, y: 0 },
-    exit: { opacity: 0, y: -10 },
+  const updateUrl = (newSearch: string, newCompany: string) => {
+    const params = new URLSearchParams()
+    if (newSearch) params.set("search", newSearch)
+    if (newCompany) params.set("company", newCompany)
+    router.push(`/?${params.toString()}`, { scroll: false })
   }
 
+  // Восстановление состояния из URL при монтировании
+  useEffect(() => {
+    const searchParam = searchParams.get("search")
+    const companyParam = searchParams.get("company")
+    
+    if (searchParam) setSearch(searchParam)
+    if (companyParam) setCompanyFilter(companyParam)
+  }, [searchParams])
+
   return (
-    <AnimatePresence mode="wait">
-      <motion.main
-        key="homepage"
-        className="p-4 max-w-7xl mx-auto"
-        initial="hidden"
-        animate="visible"
-        exit="exit"
-        variants={variants}
+    <ErrorBoundary>
+      <motion.div
+        initial={{ opacity: 0, y: 10 }}
+        animate={{ opacity: 1, y: 0 }}
         transition={{ duration: 0.3 }}
+        className="space-y-6"
       >
-        <AddUserDialog onAdd={addUser} nextId={nextId} />
+        {error && <ErrorCard error={error} onRetry={fetchUsers} />}
 
         <UserFilters
-          searchTerm={searchTerm}
-          onSearchChange={setSearchTerm}
+          search={search}
+          onSearchChange={(value) => {
+            setSearch(value)
+            updateUrl(value, companyFilter)
+          }}
           companyFilter={companyFilter}
-          onCompanyChange={setCompanyFilter}
           companies={companies}
+          onCompanyFilterChange={(value) => {
+            setCompanyFilter(value)
+            updateUrl(search, value)
+          }}
+          onAddUser={addUser}
         />
 
-        <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-4">
-          {isLoading
-            ? Array.from({ length: 6 }).map((_, i) => <UserCardSkeleton key={i} />)
-            : filteredUsers.map((user) => (
-                <UserCard key={user.id} user={user} onDelete={deleteUser} />
-              ))}
-        </div>
-      </motion.main>
-    </AnimatePresence>
+        <UsersList
+          users={filteredUsers}
+          loading={loading}
+          onDelete={deleteUser}
+          deletingId={deletingId}
+        />
+      </motion.div>
+    </ErrorBoundary>
   )
 }

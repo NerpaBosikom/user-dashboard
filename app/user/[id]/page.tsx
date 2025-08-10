@@ -1,90 +1,114 @@
+// app/user/[id]/page.tsx
 "use client"
 
+import { motion, Variants } from "framer-motion"
 import { useParams, useSearchParams } from "next/navigation"
-import { motion, AnimatePresence } from "framer-motion"
 import { useUsers } from "@/hooks/useUsers"
-import EditUserClient from "@/components/users/EditUserClient"
-import Link from "next/link"
-import { Button } from "@/components/ui/button"
 import { UserDetailsSkeleton } from "@/components/users/UserDetailsSkeleton"
+import { Button } from "@/components/ui/button"
+import Link from "next/link"
+import { EditUserClient } from "@/components/users/EditUserClient"
+import { User } from "@/lib/types"
+import { ErrorCard } from "@/components/users/ErrorCard"
 
-export default function UserPage() {
+// 1. Добавляем правильный тип для variants
+const pageVariants: Variants = {
+  initial: { opacity: 0, x: -20 },
+  animate: { opacity: 1, x: 0 },
+  exit: { opacity: 0, x: 20 }
+}
+
+export default function UserDetailsPage() {
   const { id } = useParams()
+  const { users, loading, error, updateUser } = useUsers()
   const searchParams = useSearchParams()
-  const { users, editUser } = useUsers()
 
-  const user = users.find((u) => u.id === Number(id))
+  // 2. Безопасное преобразование id в число
+  const userId = typeof id === 'string' ? parseInt(id) : Array.isArray(id) ? parseInt(id[0]) : 0
+  const user = users.find((u) => u.id === userId)
 
-  // Получаем параметры фильтров из URL
-  const search = searchParams.get("search") ?? ""
-  const company = searchParams.get("company") ?? ""
+  if (loading) {
+    return <UserDetailsSkeleton />
+  }
 
-  // Формируем query строку с фильтрами для возврата на главную
-  const queryString = new URLSearchParams()
-  if (search) queryString.set("search", search)
-  if (company) queryString.set("company", company)
-  const backHref = queryString.toString() ? `/?${queryString.toString()}` : "/"
-
-  const variants = {
-    hidden: { opacity: 0, y: 10 },
-    visible: { opacity: 1, y: 0 },
-    exit: { opacity: 0, y: -10 },
+  if (error) {
+    return (
+      <motion.div
+        initial="initial"
+        animate="animate"
+        variants={pageVariants}
+        className="max-w-xl mx-auto"
+      >
+        <ErrorCard error={error} />
+      </motion.div>
+    )
   }
 
   if (!user) {
     return (
-      <AnimatePresence mode="wait">
-        <motion.main
-          key="userdetails-skeleton"
-          className="max-w-xl mx-auto p-6 space-y-4"
-          initial="hidden"
-          animate="visible"
-          exit="exit"
-          variants={variants}
-          transition={{ duration: 0.3 }}
+      <motion.div
+        initial="initial"
+        animate="animate"
+        variants={pageVariants}
+        className="text-center py-10"
+      >
+        <p className="text-xl text-teal-700">User not found</p>
+        <Link 
+          href="/" 
+          className="text-teal-600 hover:underline mt-4 inline-block"
         >
-          <UserDetailsSkeleton />
-        </motion.main>
-      </AnimatePresence>
+          Back to home
+        </Link>
+      </motion.div>
     )
   }
 
+  const handleSave = (updatedUser: User) => {
+    updateUser(updatedUser)
+  }
+
+  // 3. Проверка наличия адреса и компании перед отображением
   return (
-    <AnimatePresence mode="wait">
-      <motion.main
-        key={`userpage-${user.id}`}
-        className="max-w-xl mx-auto p-6 space-y-4"
-        initial="hidden"
-        animate="visible"
-        exit="exit"
-        variants={variants}
-        transition={{ duration: 0.3 }}
-      >
-        <h1 className="text-2xl font-bold">{user.name}</h1>
-        <p className="text-gray-600">Username: {user.username}</p>
-        <p>Email: {user.email}</p>
-        <p>Phone: {user.phone}</p>
-        <p>Website: {user.website}</p>
+    <motion.div
+      initial="initial"
+      animate="animate"
+      variants={pageVariants}
+      className="max-w-xl mx-auto p-6 space-y-4 border border-teal-300 rounded-lg shadow-sm bg-white"
+    >
+      <h1 className="text-2xl font-bold text-teal-700">{user.name}</h1>
+      <div className="space-y-2 text-teal-800">
+        <p><span className="font-medium">Username:</span> {user.username}</p>
+        <p><span className="font-medium">Email:</span> {user.email}</p>
+        <p><span className="font-medium">Phone:</span> {user.phone}</p>
+        <p><span className="font-medium">Website:</span> {user.website}</p>
+        {user.company && (
+          <p><span className="font-medium">Company:</span> {user.company.name}</p>
+        )}
+        
+        {user.address && (
+          <div className="pt-2 border-t border-teal-100">
+            <h3 className="font-medium">Address:</h3>
+            <p>{user.address.street}</p>
+            {user.address.suite && <p>{user.address.suite}</p>}
+            <p>{user.address.city}, {user.address.zipcode}</p>
+          </div>
+        )}
+      </div>
 
-        <div>
-          <h2 className="font-semibold mt-4">Address</h2>
-          <p>
-            {user.address.street}, {user.address.city}, {user.address.zipcode}
-          </p>
-        </div>
+      <div className="flex gap-3 pt-4">
+  <Link
+    href={`/?search=${searchParams.get("search") ?? ""}&company=${searchParams.get("company") ?? ""}`}
+  >
+    <Button
+      variant="outline"
+      className="border-teal-400 text-teal-700 hover:bg-teal-50 hover:border-teal-500 transition-colors"
+    >
+      Back
+    </Button>
+  </Link>
 
-        <div>
-          <h2 className="font-semibold mt-4">Company</h2>
-          <p>{user.company.name}</p>
-        </div>
-
-        <div className="flex gap-4 pt-4">
-          <Link href={backHref}>
-            <Button variant="outline">Назад</Button>
-          </Link>
-          <EditUserClient user={user} onSave={editUser} />
-        </div>
-      </motion.main>
-    </AnimatePresence>
+  <EditUserClient user={user} onSave={handleSave} />
+</div>
+    </motion.div>
   )
 }

@@ -6,56 +6,52 @@ import { Input } from "@/components/ui/input"
 import { Button } from "@/components/ui/button"
 import { User } from "@/lib/types"
 
-interface NewUser {
-  name: string
-  username: string
-  email: string
-  phone: string
-  website: string
-  companyName: string
-}
-
 interface Props {
-  onAdd: (user: User) => void
+  onAdd: (user: Omit<User, 'id'>) => void
   nextId: number
 }
 
 export function AddUserDialog({ onAdd, nextId }: Props) {
   const [open, setOpen] = useState(false)
-  const [formData, setFormData] = useState<NewUser>({
+  const [formData, setFormData] = useState({
     name: "",
     username: "",
     email: "",
     phone: "",
     website: "",
     companyName: "",
+    street: "",
+    city: "",
+    zipcode: ""
   })
 
   const handleChange = (e: React.ChangeEvent<HTMLInputElement>) => {
     const { name, value } = e.target
-    setFormData((prev) => ({ ...prev, [name]: value }))
+    setFormData(prev => ({ ...prev, [name]: value }))
   }
 
-  const handleSubmit = () => {
-    const newUser: User = {
-      id: nextId,
+  const handleSubmit = (e: React.FormEvent) => {
+    e.preventDefault()
+    
+    const newUser: Omit<User, 'id'> = {
       name: formData.name,
       username: formData.username,
       email: formData.email,
       phone: formData.phone,
       website: formData.website,
       address: {
-        street: "",
+        street: formData.street,
         suite: "",
-        city: "",
-        zipcode: "",
+        city: formData.city,
+        zipcode: formData.zipcode
       },
       company: {
         name: formData.companyName,
         catchPhrase: "",
-        bs: "",
-      },
+        bs: ""
+      }
     }
+    
     onAdd(newUser)
     setFormData({
       name: "",
@@ -64,6 +60,9 @@ export function AddUserDialog({ onAdd, nextId }: Props) {
       phone: "",
       website: "",
       companyName: "",
+      street: "",
+      city: "",
+      zipcode: ""
     })
     setOpen(false)
   }
@@ -71,22 +70,18 @@ export function AddUserDialog({ onAdd, nextId }: Props) {
   return (
     <Dialog open={open} onOpenChange={setOpen}>
       <DialogTrigger asChild>
-        <Button className="mb-4">Добавить пользователя</Button>
+        <Button variant="outline" className="bg-teal-600 text-white hover:bg-teal-700">
+          Add User
+        </Button>
       </DialogTrigger>
-      <DialogContent>
+      <DialogContent className="max-h-[80vh] overflow-y-auto">
         <DialogHeader>
-          <DialogTitle>Добавить нового пользователя</DialogTitle>
+          <DialogTitle>Add New User</DialogTitle>
         </DialogHeader>
-        <form
-          className="space-y-3"
-          onSubmit={(e) => {
-            e.preventDefault()
-            handleSubmit()
-          }}
-        >
+        <form onSubmit={handleSubmit} className="space-y-3">
           <Input
             name="name"
-            placeholder="Name"
+            placeholder="Full Name"
             value={formData.name}
             onChange={handleChange}
             required
@@ -124,9 +119,36 @@ export function AddUserDialog({ onAdd, nextId }: Props) {
             value={formData.companyName}
             onChange={handleChange}
           />
-          <Button type="submit" className="mt-2 w-full">
-            Добавить
-          </Button>
+          <Input
+            name="street"
+            placeholder="Street"
+            value={formData.street}
+            onChange={handleChange}
+          />
+          <Input
+            name="city"
+            placeholder="City"
+            value={formData.city}
+            onChange={handleChange}
+          />
+          <Input
+            name="zipcode"
+            placeholder="Zip Code"
+            value={formData.zipcode}
+            onChange={handleChange}
+          />
+          <div className="flex justify-end gap-2 pt-2">
+            <Button 
+              type="button" 
+              variant="outline" 
+              onClick={() => setOpen(false)}
+            >
+              Cancel
+            </Button>
+            <Button type="submit" className="bg-teal-600 hover:bg-teal-700">
+              Add User
+            </Button>
+          </div>
         </form>
       </DialogContent>
     </Dialog>

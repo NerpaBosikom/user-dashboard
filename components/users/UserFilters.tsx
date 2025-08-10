@@ -1,41 +1,55 @@
-import React from "react"
+"use client"
+
+import { Input } from "@/components/ui/input"
+import { AddUserDialog } from "./AddUserDialog"
+import { User } from "@/lib/types"
 
 interface UserFiltersProps {
-  searchTerm: string
+  search: string
   onSearchChange: (value: string) => void
   companyFilter: string
-  onCompanyChange: (value: string) => void
   companies: string[]
+  onCompanyFilterChange: (value: string) => void
+  onAddUser: (newUser: Omit<User, 'id'>) => void
 }
 
 export function UserFilters({
-  searchTerm,
+  search,
   onSearchChange,
   companyFilter,
-  onCompanyChange,
   companies,
+  onCompanyFilterChange,
+  onAddUser
 }: UserFiltersProps) {
   return (
-    <div className="flex flex-col sm:flex-row gap-4 mb-4">
-      <input
-        type="text"
-        placeholder="Search by name"
-        value={searchTerm}
+    <div className="flex flex-col md:flex-row gap-3 items-start">
+      <Input
+        placeholder="Search by name or username..."
+        value={search}
         onChange={(e) => onSearchChange(e.target.value)}
-        className="border rounded px-3 py-2 flex-1"
+        className="border-teal-500 focus-visible:ring-teal-500 flex-1"
       />
-      <select
-        value={companyFilter}
-        onChange={(e) => onCompanyChange(e.target.value)}
-        className="border rounded px-3 py-2 w-60"
-      >
-        <option value="">All companies</option>
-        {companies.map((company) => (
-          <option key={company} value={company}>
-            {company}
-          </option>
-        ))}
-      </select>
+      
+      <div className="relative flex-1">
+        <Input
+          list="companies-list"
+          placeholder="Filter by company"
+          value={companyFilter}
+          onChange={(e) => onCompanyFilterChange(e.target.value)}
+          className="border-teal-500 focus-visible:ring-teal-500 w-full"
+        />
+        <datalist id="companies-list">
+          <option value="">All companies</option>
+          {companies.map(company => (
+            <option key={`company-opt-${company}`} value={company} />
+          ))}
+        </datalist>
+      </div>
+
+      <AddUserDialog 
+        onAdd={onAddUser}
+        nextId={Date.now()}
+      />
     </div>
   )
 }
