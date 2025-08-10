@@ -1,4 +1,3 @@
-// app/user/[id]/page.tsx
 "use client"
 
 import { motion, Variants } from "framer-motion"
@@ -10,20 +9,19 @@ import Link from "next/link"
 import { EditUserClient } from "@/components/users/EditUserClient"
 import { User } from "@/lib/types"
 import { ErrorCard } from "@/components/users/ErrorCard"
+import { Suspense } from "react"
 
-// 1. Добавляем правильный тип для variants
 const pageVariants: Variants = {
   initial: { opacity: 0, x: -20 },
   animate: { opacity: 1, x: 0 },
   exit: { opacity: 0, x: 20 }
 }
 
-export default function UserDetailsPage() {
+function UserDetailsContent() {
   const { id } = useParams()
   const { users, loading, error, updateUser } = useUsers()
   const searchParams = useSearchParams()
 
-  // 2. Безопасное преобразование id в число
   const userId = typeof id === 'string' ? parseInt(id) : Array.isArray(id) ? parseInt(id[0]) : 0
   const user = users.find((u) => u.id === userId)
 
@@ -67,7 +65,6 @@ export default function UserDetailsPage() {
     updateUser(updatedUser)
   }
 
-  // 3. Проверка наличия адреса и компании перед отображением
   return (
     <motion.div
       initial="initial"
@@ -96,19 +93,27 @@ export default function UserDetailsPage() {
       </div>
 
       <div className="flex gap-3 pt-4">
-  <Link
-    href={`/?search=${searchParams.get("search") ?? ""}&company=${searchParams.get("company") ?? ""}`}
-  >
-    <Button
-      variant="outline"
-      className="border-teal-400 text-teal-700 hover:bg-teal-50 hover:border-teal-500 transition-colors"
-    >
-      Back
-    </Button>
-  </Link>
+        <Link
+          href={`/?search=${searchParams.get("search") ?? ""}&company=${searchParams.get("company") ?? ""}`}
+        >
+          <Button
+            variant="outline"
+            className="border-teal-400 text-teal-700 hover:bg-teal-50 hover:border-teal-500 transition-colors"
+          >
+            Back
+          </Button>
+        </Link>
 
-  <EditUserClient user={user} onSave={handleSave} />
-</div>
+        <EditUserClient user={user} onSave={handleSave} />
+      </div>
     </motion.div>
+  )
+}
+
+export default function UserDetailsPage() {
+  return (
+    <Suspense fallback={<UserDetailsSkeleton />}>
+      <UserDetailsContent />
+    </Suspense>
   )
 }

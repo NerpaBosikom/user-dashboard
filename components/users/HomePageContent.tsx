@@ -1,3 +1,4 @@
+// components/users/HomePageContent.tsx
 "use client"
 
 import { useSearchParams, useRouter } from "next/navigation"
@@ -18,7 +19,6 @@ export function HomePageContent() {
   const [search, setSearch] = useState(searchParams.get("search") ?? "")
   const [companyFilter, setCompanyFilter] = useState(searchParams.get("company") ?? "")
 
-  // Список компаний для фильтра
   const companies = useMemo(() => {
     const uniqueCompanies = new Set<string>()
     users.forEach((user: User) => {
@@ -52,7 +52,6 @@ export function HomePageContent() {
     router.push(`/?${params.toString()}`, { scroll: false })
   }
 
-  // Восстановление состояния из URL при монтировании
   useEffect(() => {
     const searchParam = searchParams.get("search")
     const companyParam = searchParams.get("company")
