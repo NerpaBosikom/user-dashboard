@@ -20,16 +20,6 @@ export function HomePageContent() {
   const [companyFilter, setCompanyFilter] = useState(searchParams.get("company") ?? "")
   const [isInitialLoad, setIsInitialLoad] = useState(true)
 
-  const companies = useMemo(() => {
-    const uniqueCompanies = new Set<string>()
-    users.forEach((user: User) => {
-      if (user.company?.name) {
-        uniqueCompanies.add(user.company.name)
-      }
-    })
-    return Array.from(uniqueCompanies).sort()
-  }, [users])
-
   const filteredUsers = useMemo(() => {
     const searchLower = search.toLowerCase()
     const companyLower = companyFilter.toLowerCase()
@@ -84,7 +74,7 @@ export function HomePageContent() {
             updateUrl(value, companyFilter)
           }}
           companyFilter={companyFilter}
-          companies={companies}
+          users={users} 
           onCompanyFilterChange={(value) => {
             setCompanyFilter(value)
             updateUrl(search, value)
