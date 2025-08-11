@@ -22,9 +22,13 @@ export class ErrorBoundary extends React.Component<Props, State> {
     return { hasError: true, error }
   }
 
+  resetError = () => {
+    this.setState({ hasError: false, error: null })
+  }
+
   render() {
     if (this.state.hasError && this.state.error) {
-      return <ErrorCard error={this.state.error} />
+      return <ErrorCard error={this.state.error} onRetry={this.resetError} />
     }
 
     return this.props.children

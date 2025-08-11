@@ -1,6 +1,10 @@
-export default function Footer() {
+interface FooterProps {
+  className?: string;
+}
+
+export default function Footer({ className }: FooterProps) {
   return (
-    <footer className="mt-auto w-full bg-teal-50 text-center py-4 border-t border-teal-200">
+    <footer className={`mt-auto w-full bg-teal-50 text-center py-4 border-t border-teal-200 ${className || ''}`}>
       <p className="text-sm text-teal-700">
         Developed by <span className="font-semibold">Svetlana Tomzova</span> © {new Date().getFullYear()}
       </p>

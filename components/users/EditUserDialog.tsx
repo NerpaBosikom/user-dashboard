@@ -5,23 +5,30 @@ import { Dialog, DialogContent, DialogTrigger, DialogHeader, DialogTitle } from 
 import { Input } from "@/components/ui/input"
 import { Button } from "@/components/ui/button"
 import { User } from "@/lib/types"
-import { Plus, X } from "lucide-react"
+import { Pencil, X } from "lucide-react"
 import { motion } from "framer-motion"
 
 interface Props {
-  onAdd: (user: Omit<User, 'id'>) => void
-  nextId: number
+  user: User
+  onSave: (user: User) => void
+  className?: string
+  children?: React.ReactNode
 }
 
-export function AddUserDialog({ onAdd, nextId }: Props) {
+export function EditUserDialog({ 
+  user, 
+  onSave, 
+  className = "",
+  children 
+}: Props) {
   const [open, setOpen] = useState(false)
   const [formData, setFormData] = useState({
-    name: "",
-    username: "",
-    email: "",
-    phone: "",
-    website: "",
-    companyName: ""
+    name: user.name,
+    username: user.username,
+    email: user.email,
+    phone: user.phone,
+    website: user.website,
+    companyName: user.company.name
   })
 
   const handleChange = (e: React.ChangeEvent<HTMLInputElement>) => {
@@ -32,43 +39,33 @@ export function AddUserDialog({ onAdd, nextId }: Props) {
   const handleSubmit = (e: React.FormEvent) => {
     e.preventDefault()
     
-    const newUser: Omit<User, 'id'> = {
+    const updatedUser: User = {
+      ...user,
       name: formData.name,
       username: formData.username,
       email: formData.email,
       phone: formData.phone,
       website: formData.website,
       company: {
-        name: formData.companyName,
-        catchPhrase: "",
-        bs: ""
-      },
-      address: {
-        street: "",
-        suite: "",
-        city: "",
-        zipcode: ""
+        ...user.company,
+        name: formData.companyName
       }
     }
     
-    onAdd(newUser)
-    setFormData({
-      name: "",
-      username: "",
-      email: "",
-      phone: "",
-      website: "",
-      companyName: ""
-    })
+    onSave(updatedUser)
     setOpen(false)
   }
 
   return (
     <Dialog open={open} onOpenChange={setOpen}>
       <DialogTrigger asChild>
-        <Button className="bg-[#0d9488] hover:bg-[#0f766e] text-white flex items-center gap-2 w-full md:w-auto">
-          <Plus size={16} /> Добавить пользователя
-        </Button>
+        {children || (
+          <Button 
+            className={`bg-[#0d9488] hover:bg-[#0f766e] text-white flex items-center gap-2 ${className}`}
+          >
+            <Pencil size={16} /> Редактировать
+          </Button>
+        )}
       </DialogTrigger>
       <DialogContent className="max-w-md">
         <motion.div
@@ -77,7 +74,7 @@ export function AddUserDialog({ onAdd, nextId }: Props) {
           transition={{ duration: 0.3 }}
         >
           <DialogHeader>
-            <DialogTitle className="text-[#0d9488]">Добавить нового пользователя</DialogTitle>
+            <DialogTitle className="text-[#0d9488]">Редактировать пользователя</DialogTitle>
           </DialogHeader>
           <form onSubmit={handleSubmit} className="space-y-4 mt-4">
             <motion.div
@@ -122,20 +119,20 @@ export function AddUserDialog({ onAdd, nextId }: Props) {
               ))}
             </motion.div>
 
-            <div className="flex justify-between pt-4 gap-4"> {/* Изменено на justify-between */}
+            <div className="flex justify-between pt-4 gap-4">
               <Button 
                 type="button" 
                 variant="outline"
                 onClick={() => setOpen(false)}
-                className="border-[#2dd4bf] text-[#0d9488] hover:bg-[#f0fdfa] flex items-center gap-2 flex-1" /* Добавлен flex-1 */
+                className="border-[#2dd4bf] text-[#0d9488] hover:bg-[#f0fdfa] flex items-center gap-2 flex-1"
               >
                 <X size={16} /> Отмена
               </Button>
               <Button 
                 type="submit" 
-                className="bg-[#0d9488] hover:bg-[#0f766e] flex-1" /* Добавлен flex-1 */
+                className="bg-[#0d9488] hover:bg-[#0f766e] flex-1"
               >
-                Добавить
+                Сохранить
               </Button>
             </div>
           </form>

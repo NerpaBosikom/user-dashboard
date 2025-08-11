@@ -1,4 +1,3 @@
-// components/users/HomePageContent.tsx
 "use client"
 
 import { useSearchParams, useRouter } from "next/navigation"
@@ -10,6 +9,7 @@ import { ErrorBoundary } from "@/components/users/ErrorBoundary"
 import { UserFilters } from "@/components/users/UserFilters"
 import { UsersList } from "@/components/users/UsersList"
 import { User } from "@/lib/types"
+import { UserCardSkeleton } from "@/components/users/UserCardSkeleton"
 
 export function HomePageContent() {
   const router = useRouter()
@@ -18,6 +18,7 @@ export function HomePageContent() {
 
   const [search, setSearch] = useState(searchParams.get("search") ?? "")
   const [companyFilter, setCompanyFilter] = useState(searchParams.get("company") ?? "")
+  const [isInitialLoad, setIsInitialLoad] = useState(true)
 
   const companies = useMemo(() => {
     const uniqueCompanies = new Set<string>()
@@ -60,6 +61,12 @@ export function HomePageContent() {
     if (companyParam) setCompanyFilter(companyParam)
   }, [searchParams])
 
+  useEffect(() => {
+    if (users.length > 0) {
+      setIsInitialLoad(false)
+    }
+  }, [users])
+
   return (
     <ErrorBoundary>
       <motion.div
@@ -85,12 +92,20 @@ export function HomePageContent() {
           onAddUser={addUser}
         />
 
-        <UsersList
-          users={filteredUsers}
-          loading={loading}
-          onDelete={deleteUser}
-          deletingId={deletingId}
-        />
+        {isInitialLoad || loading ? (
+          <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-4">
+            {[...Array(6)].map((_, i) => (
+              <UserCardSkeleton key={i} />
+            ))}
+          </div>
+        ) : (
+          <UsersList
+            users={filteredUsers}
+            loading={loading}
+            onDelete={deleteUser}
+            deletingId={deletingId}
+          />
+        )}
       </motion.div>
     </ErrorBoundary>
   )
