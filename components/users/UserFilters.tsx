@@ -32,7 +32,6 @@ export function UserFilters({
   return (
     <div className="bg-[#f0fdfa] p-4 rounded-lg border border-[#ccfbf1] mb-6 space-y-3">
       <div className="flex flex-col md:flex-row gap-3 items-start">
-        {/* Поле поиска */}
         <motion.div 
           className="relative flex-1 w-full"
           initial={{ opacity: 0, y: -10 }}
@@ -49,7 +48,6 @@ export function UserFilters({
           />
         </motion.div>
         
-        {/* Фильтр по компании */}
         <motion.div 
           className="relative flex-1 w-full"
           initial={{ opacity: 0, y: -10 }}
@@ -79,7 +77,6 @@ export function UserFilters({
         />
       </div>
       
-      {/* Кнопка сброса и подсказка */}
       <AnimatePresence>
         {(search || companyFilter) && (
           <motion.div

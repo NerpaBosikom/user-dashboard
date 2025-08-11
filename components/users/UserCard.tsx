@@ -42,7 +42,7 @@ export function UserCard({ user, onDelete, isDeleting = false }: UserCardProps) 
           <p className="text-sm text-gray-700">{user.company?.name}</p>
         </CardContent>
         
-        <div className="p-4 border-t flex justify-between gap-4"> {/* Увеличили gap с 2 до 4 */}
+        <div className="p-4 border-t flex justify-between gap-4"> 
           <Link href={`/user/${user.id}`} className="flex-1">
             <Button 
               variant="outline" 

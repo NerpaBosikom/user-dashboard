@@ -44,12 +44,10 @@ export function useUsers() {
     }
   }, [])
 
-  // Добавляем функцию updateUser
   const updateUser = useCallback((updatedUser: User) => {
     setState(prev => {
       const { localUsers, deletedIds } = getLocalData()
   
-      // Для всех пользователей (и API, и локальных) сохраняем изменения в localStorage
       const existingIndex = localUsers.findIndex(u => u.id === updatedUser.id)
       let newLocalUsers = [...localUsers]
       
@@ -60,8 +58,7 @@ export function useUsers() {
       }
   
       saveToLocalStorage({ localUsers: newLocalUsers, deletedIds })
-  
-      // Обновляем состояние
+
       const userIndex = prev.users.findIndex(u => u.id === updatedUser.id)
       const updatedUsers = [...prev.users]
       
@@ -86,7 +83,6 @@ export function useUsers() {
       const filteredApiUsers = apiUsers.filter(user => !deletedIds.includes(user.id))
       const mergedUsers = [...filteredApiUsers]
 
-      // добавляем локальных, заменяя если id совпадает
       localUsers.forEach(localUser => {
         const existingIndex = mergedUsers.findIndex(u => u.id === localUser.id)
         if (existingIndex !== -1) {
@@ -132,7 +128,6 @@ export function useUsers() {
     setState(prev => {
       const { localUsers, deletedIds } = getLocalData()
 
-      // заменяем, если id совпадает
       const existingIndex = localUsers.findIndex(u => u.id === userWithId.id)
       let updatedLocalUsers
       if (existingIndex !== -1) {
@@ -199,7 +194,7 @@ export function useUsers() {
     deletingId: state.deletingId,
     addUser, 
     deleteUser,
-    updateUser, // Добавляем новую функцию в возвращаемый объект
+    updateUser,
     fetchUsers,
     getNextId
   }

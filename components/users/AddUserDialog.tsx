@@ -122,18 +122,18 @@ export function AddUserDialog({ onAdd, nextId }: Props) {
               ))}
             </motion.div>
 
-            <div className="flex justify-between pt-4 gap-4"> {/* Изменено на justify-between */}
+            <div className="flex justify-between pt-4 gap-4">
               <Button 
                 type="button" 
                 variant="outline"
                 onClick={() => setOpen(false)}
-                className="border-[#2dd4bf] text-[#0d9488] hover:bg-[#f0fdfa] flex items-center gap-2 flex-1" /* Добавлен flex-1 */
+                className="border-[#2dd4bf] text-[#0d9488] hover:bg-[#f0fdfa] flex items-center gap-2 flex-1"
               >
                 <X size={16} /> Отмена
               </Button>
               <Button 
                 type="submit" 
-                className="bg-[#0d9488] hover:bg-[#0f766e] flex-1" /* Добавлен flex-1 */
+                className="bg-[#0d9488] hover:bg-[#0f766e] flex-1" 
               >
                 Добавить
               </Button>
