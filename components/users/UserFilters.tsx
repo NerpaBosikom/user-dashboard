@@ -6,7 +6,7 @@ import { User } from "@/lib/types"
 import { Search, Building, X } from "lucide-react"
 import { motion, AnimatePresence } from "framer-motion"
 import { Button } from "@/components/ui/button"
-import { useMemo, useState } from "react"
+import { useMemo } from "react"
 
 interface UserFiltersProps {
   search: string
@@ -30,12 +30,11 @@ export function UserFilters({
     onCompanyFilterChange("")
   }
 
-  // Получаем отфильтрованный список компаний
+
   const filteredCompanies = useMemo(() => {
     const companySet = new Set<string>()
     
     users.forEach(user => {
-      // Фильтруем компании по поисковому запросу (если он есть)
       const matchesSearch = search === "" || 
         user.name.toLowerCase().includes(search.toLowerCase()) ||
         user.username.toLowerCase().includes(search.toLowerCase())
@@ -46,7 +45,7 @@ export function UserFilters({
     })
     
     return Array.from(companySet).sort()
-  }, [users, search]) // Зависим от users и search
+  }, [users, search]) 
 
   return (
     <div className="bg-[#f0fdfa] p-4 rounded-lg border border-[#ccfbf1] mb-6 space-y-3">
