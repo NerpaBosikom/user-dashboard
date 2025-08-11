@@ -10,7 +10,7 @@ import { motion } from "framer-motion"
 
 interface Props {
   onAdd: (user: Omit<User, 'id'>) => void
-  nextId: number
+  nextId?: number
 }
 
 export function AddUserDialog({ onAdd, nextId }: Props) {
@@ -101,7 +101,7 @@ export function AddUserDialog({ onAdd, nextId }: Props) {
                 { name: "phone", placeholder: "Телефон" },
                 { name: "website", placeholder: "Вебсайт" },
                 { name: "companyName", placeholder: "Компания" }
-              ].map((field, index) => (
+              ].map((field) => (
                 <motion.div
                   key={field.name}
                   variants={{
@@ -133,7 +133,7 @@ export function AddUserDialog({ onAdd, nextId }: Props) {
               </Button>
               <Button 
                 type="submit" 
-                className="bg-[#0d9488] hover:bg-[#0f766e] flex-1" 
+                className="bg-[#0d9488] hover:bg-[#0f766e] flex-1"
               >
                 Добавить
               </Button>

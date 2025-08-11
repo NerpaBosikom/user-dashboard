@@ -5,7 +5,7 @@ import { Card, CardContent } from "@/components/ui/card"
 import { Button } from "@/components/ui/button"
 import { User } from "@/lib/types"
 import Link from "next/link"
-import { Trash2, ArrowRight, Pencil } from 'lucide-react'
+import { Trash2, ArrowRight } from 'lucide-react'
 
 interface UserCardProps {
   user: User

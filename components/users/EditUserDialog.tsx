@@ -98,7 +98,7 @@ export function EditUserDialog({
                 { name: "phone", placeholder: "Телефон" },
                 { name: "website", placeholder: "Вебсайт" },
                 { name: "companyName", placeholder: "Компания" }
-              ].map((field, index) => (
+              ].map((field) => (
                 <motion.div
                   key={field.name}
                   variants={{

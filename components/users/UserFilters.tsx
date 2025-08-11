@@ -32,7 +32,7 @@ export function UserFilters({
   return (
     <div className="bg-[#f0fdfa] p-4 rounded-lg border border-[#ccfbf1] mb-6 space-y-3">
       <div className="flex flex-col md:flex-row gap-3 items-start">
-        <motion.div 
+      <motion.div 
           className="relative flex-1 w-full"
           initial={{ opacity: 0, y: -10 }}
           animate={{ opacity: 1, y: 0 }}
@@ -94,8 +94,8 @@ export function UserFilters({
             </Button>
             <span className="text-sm text-[#0d9488]">
               Активные фильтры: 
-              {search && <span className="ml-1">"{search}"</span>}
-              {companyFilter && <span className="ml-1">компания "{companyFilter}"</span>}
+              {search && <span className="ml-1">&quot;{search}&quot;</span>}
+              {companyFilter && <span className="ml-1">компания &quot;{companyFilter}&quot;</span>}
             </span>
           </motion.div>
         )}
